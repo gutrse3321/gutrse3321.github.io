@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang class="loading">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>转-小众的偏好 - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate">
+    <meta name="keywords" content="tomonori,"> 
+    <meta name="description" content="
+原文章: https://fiveyellowmice.com/posts/2018/05/preference-of-minority.html文章使用 CC-BY-SA 4.0 进行授权
+
+我,"> 
+    <meta name="author" content="John Doe"> 
+    
+    <link rel="icon" href="/img/favicon.png"> 
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <link rel="stylesheet" href="/css/diaspora.css">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({
+              google_ad_client: "ca-pub-8691406134231910",
+              enable_page_level_ads: true
+         });
+    </script>
+    <script async custom-element="amp-auto-ads" src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
+</head>
+</html>
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="icon-play"></div>
+    <h3 class="subtitle">nginx扩展conf配置文件和https</h3>
+    <div class="social">
+        <!--<div class="like-icon">-->
+            <!--<a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
+        <!--</div>-->
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class="main">
+        <h1 class="title">nginx扩展conf配置文件和https</h1>
+        <div class="stuff">
+            <span>三月 04, 2019</span>
+            
+  <ul class="post-tags-list"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/nginx/">nginx</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>记录自己服务器中配置nginx配置文件从其他的扩展配置，简化nginx.conf，按站点配置，更能直观修改和查看</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># nginx.conf</span><br><span class="line">worker_processes  1;</span><br><span class="line"></span><br><span class="line">#pid        logs/nginx.pid;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       mime.types;</span><br><span class="line">    # 此处include进vhost目录下的所有.conf文件</span><br><span class="line">    include       vhost/*.conf;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    #access_log  logs/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    #tcp_nopush     on;</span><br><span class="line"></span><br><span class="line">    #keepalive_timeout  0;</span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<ul>
+<li><p>在nginx.conf同目录创建vhost目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># /usr/local/nginx/conf/</span><br><span class="line">mkdir vhost</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建一个toy.conf文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># /usr/local/nginx/conf/</span><br><span class="line">touch toy.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写站点配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># vhost/toy.conf</span><br><span class="line">server &#123;</span><br><span class="line">        listen 80;</span><br><span class="line">        server_name toy.reimu.ru;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">                root /home/frontend/marisa;</span><br><span class="line">                index index.html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        location /api/v1/ &#123;</span><br><span class="line">                proxy_pass http://127.0.0.1:3000/;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>https(证书使用let’s encrypt免费证书)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># vhost/toy.conf</span><br><span class="line">server &#123;</span><br><span class="line">    listen 443 ssl;</span><br><span class="line">    server_name toy.reimu.ru;</span><br><span class="line"></span><br><span class="line">    root /home/frontend/marisa;</span><br><span class="line">    index index.html;</span><br><span class="line"></span><br><span class="line">    ssl on;</span><br><span class="line">    ssl_certificate /etc/letsencrypt/live/toy.reimu.ru/fullchain.pem;</span><br><span class="line">    ssl_certificate_key /etc/letsencrypt/live/toy.reimu.ru/privkey.pem;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        try_files $uri $uri/ =404;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /api/v1/ &#123;</span><br><span class="line">        proxy_pass http://127.0.0.1:3000/;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src>
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        <li title="0" data-url="https://link.hhtjim.com/163/28302612.mp3"></li>
+                    
+                        <li title="1" data-url="https://link.hhtjim.com/163/574739.mp3"></li>
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link" data-ae="false" data-ci data-cs data-r data-o data-a data-d="false">查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/diaspora.js"></script>
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+</html>
