@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="Chinese" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Java Spring 杂记 - BaseService - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Tomonori,"> 
+    <meta name="description" content="友则的分享,项目中缓存服务CacheService继承的BaseService抽象类源码学习，其他服务层实现类在同包名下也有在使用(CacheService继承BaseService，其他不同模块相同包名的，继,"> 
+    <meta name="author" content="Tomonori"> 
+    <link rel="alternative" href="atom.xml" title="Tomonori&#39;s | 友則" type="application/atom+xml"> 
+    <link rel="icon" href="/static/favicon.ico"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    <meta name="twitter:image:src" content="https://bangdream.moe/img/ident.png"/>
+    <meta name="twitter:creator" content="@HexZ5"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Java Spring 杂记 - BaseService - Tomonori&#39;s | 友則"/>
+    <meta name="twitter:description" content="友则的分享,项目中缓存服务CacheService继承的BaseService抽象类源码学习，其他服务层实现类在同包名下也有在使用(CacheService继承BaseService，其他不同模块相同包名的，继,"/>
+    <meta property="og:image" content="https://bangdream.moe/img/ident.png"/>
+    <meta property="og:image:alt" content="友则的分享,项目中缓存服务CacheService继承的BaseService抽象类源码学习，其他服务层实现类在同包名下也有在使用(CacheService继承BaseService，其他不同模块相同包名的，继,"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content="Tomonori&#39;s | 友則"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="Java Spring 杂记 - BaseService - Tomonori&#39;s | 友則"/>
+    <meta property="og:description" content="友则的分享,项目中缓存服务CacheService继承的BaseService抽象类源码学习，其他服务层实现类在同包名下也有在使用(CacheService继承BaseService，其他不同模块相同包名的，继,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Java Spring 杂记 - BaseService</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Java Spring 杂记 - BaseService</h1>
+        <div class="stuff">
+            <span>六月 26, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Spring/" rel="tag">Spring</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>项目中缓存服务CacheService继承的BaseService抽象类源码学习，其他服务层实现类在同包名下也有在使用(CacheService继承BaseService，其他不同模块相同包名的，继承CacheService)。</p>
+<hr>
+<h2 id="Golang、前端所没有的-…-回顾面向对象"><a href="#Golang、前端所没有的-…-回顾面向对象" class="headerlink" title="Golang、前端所没有的 …(回顾面向对象)"></a>Golang、前端所没有的 …(回顾面向对象)</h2><blockquote>
+<h3 id="Java-抽象类"><a href="#Java-抽象类" class="headerlink" title="Java 抽象类"></a>Java 抽象类</h3><p>在面向对象的概念中，所有的对象都是通过类来描绘的，但是反过来，并不是所有的类都是用来描绘对象的，如果一个类中没有包含足够的信息来描绘一个具体的对象，这样的类就是抽象类。<br><br>抽象类除了不能实例化对象之外，类的其它功能依然存在，成员变量、成员方法和构造方法的访问方式和普通类一样。<br><br>由于抽象类不能实例化对象，所以抽象类必须被继承，才能被使用。也是因为这个原因，通常在设计阶段决定要不要设计抽象类。<br><br>父类包含了子类集合的常见的方法，但是由于父类本身是抽象的，所以不能使用这些方法。<br><br>在Java中抽象类表示的是一种继承关系，一个类只能继承一个抽象类，而一个类却可以实现多个接口。</p>
+</blockquote>
+<h4 id="BaseService"><a href="#BaseService" class="headerlink" title="BaseService"></a>BaseService</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.xxx.appserver.commons.support.JsonUtility;</span><br><span class="line"><span class="keyword">import</span> com.xxx.appserver.commons.support.SpringContextUtility;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.JsonNode;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.PostConstruct;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">BaseService</span>&lt;S&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> S proxy;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> SpringContextUtility springContextUtility;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 被@PostConstruct修饰的方法会在构造函数之后，init()方法之前运行。</span></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">post</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Class&lt;?&gt;它是个通配泛型，?可以代表任何类型</span></span><br><span class="line">        <span class="comment">// 通过getInterfaces()获取接口信息(eg:moe.test.ITest)</span></span><br><span class="line">        Class&lt;?&gt;[] interfaces = <span class="built_in">this</span>.getClass().getInterfaces();</span><br><span class="line">        <span class="keyword">if</span>(<span class="literal">null</span> == interfaces || interfaces.length == <span class="number">0</span>) <span class="keyword">return</span>;</span><br><span class="line">        proxy = (S) springContextUtility.getBean(interfaces[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> JsonNode <span class="title function_">getNodeList</span><span class="params">(String json)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">JsonNode</span> <span class="variable">node</span> <span class="operator">=</span> JsonUtility.readTree(json);</span><br><span class="line">        <span class="keyword">return</span> node.get(<span class="string">&quot;list&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>泛型类：在编译器，是无法知道S具体是什么类型，只有在运行时才会真正根据类型来构造和分配内存。(项目中一般传的是服务接口)<br>声明泛型proxy，通过post方法从Bean中获取到对应接口信息的接口实现，即在继承使用的类中可以通过proxy调用其他服务的方法，就是使用到SpringContextUtility，下面分析。</p>
+</blockquote>
+<h4 id="SpringContextUtility"><a href="#SpringContextUtility" class="headerlink" title="SpringContextUtility"></a>SpringContextUtility</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @Component注解表明一个类会作为组件类，并告知Spring要为这个类创建bean</span></span><br><span class="line"><span class="comment">// 和@Bean目的是一样的，都是注册bean到Spring容器中。</span></span><br><span class="line"><span class="comment">// @Component（@Controller、@Service、@Repository）通常是通过类路径扫描来自动侦测以及自动装配到Spring容器中。</span></span><br><span class="line"><span class="comment">// 而@Bean注解通常是我们在标有该注解的方法中定义产生这个bean的逻辑。</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringContextUtility</span> <span class="keyword">implements</span> <span class="title class_">ApplicationContextAware</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ApplicationContext applicationContext;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setApplicationContext</span><span class="params">(ApplicationContext application)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">        applicationContext = application;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getBean</span><span class="params">(String name)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">        <span class="keyword">return</span> applicationContext.getBean(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">getBean</span><span class="params">(Class&lt;T&gt; clazz)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> applicationContext.getBean(clazz);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建个类实现ApplicationContextAware工具类，可以通过其它类引用它以操作spring容器及其中的Bean实例。<br><br>Spring容器会检测容器中的所有Bean，如果发现某个Bean实现了ApplicationContextAware接口，Spring容器会在创建该Bean之后，自动调用该Bean的setApplicationContextAware()方法，调用该方法时，会将容器本身作为参数传给该方法——该方法中的实现部分将Spring传入的参数（容器本身）赋给该类对象的applicationContext实例变量，因此接下来可以通过该applicationContext实例变量来访问容器本身。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>还是登陆方法吧</p>
+<h4 id="UserServiceImpl"><a href="#UserServiceImpl" class="headerlink" title="UserServiceImpl"></a>UserServiceImpl</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@CacheConfigList(&#123;</span></span><br><span class="line"><span class="meta">        @CacheConfiguration(nameSpace = CacheKey.GAME_CATCH_USER, expTime = 172800)</span></span><br><span class="line"><span class="meta">&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserServiceImpl</span> <span class="keyword">extends</span> <span class="title class_">CacheService</span>&lt;IUserService&gt; <span class="keyword">implements</span> <span class="title class_">IUserService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> UserDto <span class="title function_">login</span><span class="params">(String code, String encryptedData, String iv)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="type">UserDto</span> <span class="variable">user</span> <span class="operator">=</span> proxy.queryUserByUid(wxUser.getOpenId());</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="comment">//缓存用户</span></span><br><span class="line">        proxy.saveUserByUid(user);</span><br><span class="line">        log.info(<span class="string">&quot;用户登录:&quot;</span> + user);</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到这个实现类继承了CacheService，泛型传的是IUserService接口，通过proxy我们就可以调到接口实现的方法了，下面是IUserService接口</p>
+<h4 id="IUserService"><a href="#IUserService" class="headerlink" title="IUserService"></a>IUserService</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IUserService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/***</span></span><br><span class="line"><span class="comment">     * 登录</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    UserDto <span class="title function_">login</span><span class="params">(String code, String encryptedData, String iv)</span> <span class="keyword">throws</span> Exception;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *缓存用户数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> userDto</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    UserDto <span class="title function_">saveUserByUid</span><span class="params">(UserDto userDto)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取用户数据</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> uid</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    UserDto <span class="title function_">queryUserByUid</span><span class="params">(String uid)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="//static/music/彩月_Saigetsu_Pt2_.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="//static/music/Shirfine-Tears_of_Cherry_Blossoms.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="true"
+        data-ae="true"
+        data-ci="4959cd13b13204273a6a"
+        data-cs="5b8c69518a593901836f49f6354413a61bddecab"
+        data-r="gutrse3321.github.io"
+        data-o="gutrse3321"
+        data-a="gutrse3321"
+        data-d="true"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Golang%E3%80%81%E5%89%8D%E7%AB%AF%E6%89%80%E6%B2%A1%E6%9C%89%E7%9A%84-%E2%80%A6-%E5%9B%9E%E9%A1%BE%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.</span> <span class="toc-text">Golang、前端所没有的 …(回顾面向对象)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-%E6%8A%BD%E8%B1%A1%E7%B1%BB"><span class="toc-number">1.1.</span> <span class="toc-text">Java 抽象类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#BaseService"><span class="toc-number">1.1.1.</span> <span class="toc-text">BaseService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SpringContextUtility"><span class="toc-number">1.1.2.</span> <span class="toc-text">SpringContextUtility</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#UserServiceImpl"><span class="toc-number">2.0.1.</span> <span class="toc-text">UserServiceImpl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IUserService"><span class="toc-number">2.0.2.</span> <span class="toc-text">IUserService</span></a></li></ol></li></ol></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

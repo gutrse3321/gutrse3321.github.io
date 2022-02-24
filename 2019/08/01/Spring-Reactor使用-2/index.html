@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="Chinese" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spring Reactor使用(2) - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Tomonori,"> 
+    <meta name="description" content="友则的分享,封装通用的reactor事件处理，无需自己去写事件，只需关心业务逻辑
+Code实例化Reactor Bean,这里采用内部 Bean 方式实现
+123456789101112131415161718,"> 
+    <meta name="author" content="Tomonori"> 
+    <link rel="alternative" href="atom.xml" title="Tomonori&#39;s | 友則" type="application/atom+xml"> 
+    <link rel="icon" href="/static/favicon.ico"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    <meta name="twitter:image:src" content="https://bangdream.moe/img/ident.png"/>
+    <meta name="twitter:creator" content="@HexZ5"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Spring Reactor使用(2) - Tomonori&#39;s | 友則"/>
+    <meta name="twitter:description" content="友则的分享,封装通用的reactor事件处理，无需自己去写事件，只需关心业务逻辑
+Code实例化Reactor Bean,这里采用内部 Bean 方式实现
+123456789101112131415161718,"/>
+    <meta property="og:image" content="https://bangdream.moe/img/ident.png"/>
+    <meta property="og:image:alt" content="友则的分享,封装通用的reactor事件处理，无需自己去写事件，只需关心业务逻辑
+Code实例化Reactor Bean,这里采用内部 Bean 方式实现
+123456789101112131415161718,"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content="Tomonori&#39;s | 友則"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="Spring Reactor使用(2) - Tomonori&#39;s | 友則"/>
+    <meta property="og:description" content="友则的分享,封装通用的reactor事件处理，无需自己去写事件，只需关心业务逻辑
+Code实例化Reactor Bean,这里采用内部 Bean 方式实现
+123456789101112131415161718,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Spring Reactor使用(2)</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Spring Reactor使用(2)</h1>
+        <div class="stuff">
+            <span>八月 01, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Reactor/" rel="tag">Reactor</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>封装通用的reactor事件处理，无需自己去写事件，只需关心业务逻辑</p>
+<h3 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h3><p>实例化Reactor Bean,这里采用内部 Bean 方式实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">//src/.../reactor/config/ReactorConfig.java</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class ReactorConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    Environment env() &#123;</span><br><span class="line">        return new Environment();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    @Primary</span><br><span class="line">    Reactor pool(Environment env) &#123;</span><br><span class="line">        return Reactors.reactor()</span><br><span class="line">                    .env(env)</span><br><span class="line">                    .dispatcher(Environment.THREAD_POOL)</span><br><span class="line">                    .get();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    Reactor loop(Environment env) &#123;</span><br><span class="line">        return Reactors.reactor()</span><br><span class="line">                    .env(env)</span><br><span class="line">                    .dispatcher(Environment.EVENT_LOOP)</span><br><span class="line">                    .get();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>公共事件处理，即实现了InitializingBean初始化，也实现了业务逻辑的消费者</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">//src/.../reactor/BaseHandler.java</span><br><span class="line">public abstract class BaseHandler&lt;T&gt; implements InitializingBean, Consumer&lt;Event&lt;T&gt;&gt; &#123;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 事件处理池(异步处理)</span><br><span class="line">     */</span><br><span class="line">    @Autowired</span><br><span class="line">    protected Reactor pool;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 事件处理队列(one by one)</span><br><span class="line">     */</span><br><span class="line">    @Autowired</span><br><span class="line">    @Qualifier(value = &quot;loop&quot;)</span><br><span class="line">    protected Reactor loop;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 选择器-获取class的小驼峰字符串$()组合</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    protected final Selector selector() &#123;</span><br><span class="line">        //reactor.on(********$(&quot;userHandler&quot;)*********, userHandler);</span><br><span class="line">        return $(this.getClass().getSimpleName());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 键选择器-获取class的小驼峰字符串</span><br><span class="line">     * @return</span><br><span class="line">     */</span><br><span class="line">    protected final String selectorKey() &#123;</span><br><span class="line">        return this.getClass().getSimpleName();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 事件的监听器，以便于接收发送的事件并处理。需要实现 Consumer&lt;Event&lt;T&gt;&gt; 接口，其中 T 是处理程序接收的数据类型</span><br><span class="line">     * 封装公共使用</span><br><span class="line">     * @param tEvent</span><br><span class="line">     */</span><br><span class="line">    @Override</span><br><span class="line">    public void accept(Event&lt;T&gt; tEvent) &#123;</span><br><span class="line">        this.handler(tEvent.getData(), tEvent);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 发送的事件绑定到指定的监听器</span><br><span class="line">     * @throws Exception</span><br><span class="line">     */</span><br><span class="line">    @Override</span><br><span class="line">    public void afterPropertiesSet() throws Exception &#123;</span><br><span class="line">        this.register();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 封装公共发送事件方法</span><br><span class="line">     * @param o</span><br><span class="line">     */</span><br><span class="line">    public void notify(T o) &#123;</span><br><span class="line">        pool.notify(selectorKey(), Event.wrap(o));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public final void notify(Event o) &#123;</span><br><span class="line">        pool.notify(selectorKey(), o);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    protected abstract void handler(T o, Event&lt;T&gt; tEvent);</span><br><span class="line"></span><br><span class="line">    protected void register() throws Exception &#123;</span><br><span class="line">        pool.on(selector(), this);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>后续编写对应自己需要的异步操作，创建一个类继承BaseHandler传入dto泛型，实现handler就完成了，无需自己去编写绑定</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">//src/.../reactor/handler/Article.java</span><br><span class="line">@Slf4j</span><br><span class="line">@Component</span><br><span class="line">public class ArticleHandler extends BaseHandler&lt;ArticleDto&gt; &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    ArticleMapper articleMapper;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void handler(ArticleDto articleDto, Event&lt;ArticleDto&gt; articleDtoEvent) &#123;</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            ArticleDto article = articleMapper.getArticle(articleDto.getId());</span><br><span class="line">            log.info(&quot;in ArticleHandler: article=&#123;&#125;&quot;, article);</span><br><span class="line">        &#125; catch(Exception e) &#123;</span><br><span class="line">            log.error(String.valueOf(e));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 如果需要大量的异步操作，可以重载修改notify和register</span><br><span class="line">     */</span><br><span class="line">//    @Override</span><br><span class="line">//    public void notify(ArticleDto articleDto) &#123;</span><br><span class="line">//        loop.notify(selectorKey(), Event.wrap(articleDto));</span><br><span class="line">//    &#125;</span><br><span class="line">//</span><br><span class="line">//    @Override</span><br><span class="line">//    protected void register() throws Exception &#123;</span><br><span class="line">//        loop.on(selector(), this);</span><br><span class="line">//    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="/static/music/眠-昭和恋爱循环.mp3">
+            </audio>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="true"
+        data-ae="true"
+        data-ci="4959cd13b13204273a6a"
+        data-cs="5b8c69518a593901836f49f6354413a61bddecab"
+        data-r="gutrse3321.github.io"
+        data-o="gutrse3321"
+        data-a="gutrse3321"
+        data-d="true"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Code"><span class="toc-number">1.</span> <span class="toc-text">Code</span></a></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

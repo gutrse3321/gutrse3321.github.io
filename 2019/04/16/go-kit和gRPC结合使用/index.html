@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html lang="Chinese" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>关于gRPC和golang实现微服务的记录(二) - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Tomonori,"> 
+    <meta name="description" content="友则的分享,go-kit和gRPC结合使用
+
+什么是Go Kit
+Go kit is a collection of Go (golang) packages (libraries) that help you,"> 
+    <meta name="author" content="Tomonori"> 
+    <link rel="alternative" href="atom.xml" title="Tomonori&#39;s | 友則" type="application/atom+xml"> 
+    <link rel="icon" href="/static/favicon.ico"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    <meta name="twitter:image:src" content="https://bangdream.moe/img/ident.png"/>
+    <meta name="twitter:creator" content="@HexZ5"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="关于gRPC和golang实现微服务的记录(二) - Tomonori&#39;s | 友則"/>
+    <meta name="twitter:description" content="友则的分享,go-kit和gRPC结合使用
+
+什么是Go Kit
+Go kit is a collection of Go (golang) packages (libraries) that help you,"/>
+    <meta property="og:image" content="https://bangdream.moe/img/ident.png"/>
+    <meta property="og:image:alt" content="友则的分享,go-kit和gRPC结合使用
+
+什么是Go Kit
+Go kit is a collection of Go (golang) packages (libraries) that help you,"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content="Tomonori&#39;s | 友則"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="关于gRPC和golang实现微服务的记录(二) - Tomonori&#39;s | 友則"/>
+    <meta property="og:description" content="友则的分享,go-kit和gRPC结合使用
+
+什么是Go Kit
+Go kit is a collection of Go (golang) packages (libraries) that help you,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">关于gRPC和golang实现微服务的记录(二)</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">关于gRPC和golang实现微服务的记录(二)</h1>
+        <div class="stuff">
+            <span>四月 16, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/gRPC/" rel="tag">gRPC</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/go-kit/" rel="tag">go-kit</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <p>go-kit和gRPC结合使用</p>
+<hr>
+<h3 id="什么是Go-Kit"><a href="#什么是Go-Kit" class="headerlink" title="什么是Go Kit"></a>什么是Go Kit</h3><blockquote>
+<p>Go kit is a collection of Go (golang) packages (libraries) that help you build robust, reliable, maintainable microservices. It was originally conceived as a toolkit to help larger (so-called modern enterprise) organizations adopt Go as an implementation language. But it very quickly “grew downward”, and now serves smaller startups and organizations just as well. For more about the origins of Go kit, see Go kit: Go in the modern enterprise.</p>
+</blockquote>
+<p>Go Kit是使用golang编写的一个微服务工具包，帮助开发者能够快速展开微服务开发的工作</p>
+<h4 id="Transports-传输层"><a href="#Transports-传输层" class="headerlink" title="Transports 传输层"></a>Transports 传输层</h4><p>Go Kit 可以自由的去选择使用HTTP或者gRPC作为传输方式，你也可以在一个项目中使用HTTP API和RPC服务</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用gRPC</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	. . .</span><br><span class="line"></span><br><span class="line">	gRPCtransport <span class="string">&quot;github.com/go-kit/kit/transport/grpc&quot;</span></span><br><span class="line"></span><br><span class="line">	. . .</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用HTTP</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	. . .</span><br><span class="line"></span><br><span class="line">	httptransport <span class="string">&quot;github.com/go-kit/kit/transport/http&quot;</span></span><br><span class="line"></span><br><span class="line">	. . .</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h4 id="Endpoints-端点层"><a href="#Endpoints-端点层" class="headerlink" title="Endpoints 端点层"></a>Endpoints 端点层</h4><p>类似MVC设计模式下的Controller中的Action Handler，如果你使用了两个传输方式，你也需要两个方法来请求同一个端点(endpoint)</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// endpoint</span></span><br><span class="line"><span class="comment">// RPC endpoint 服务请求响应适配器</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeBookInfoEndpoint</span><span class="params">()</span></span> endpoint.Endpoint &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, request <span class="keyword">interface</span>&#123;&#125;)</span></span> (<span class="keyword">interface</span>&#123;&#125;, <span class="type">error</span>) &#123;</span><br><span class="line">		req := request.(*pb.BookInfoRequest)</span><br><span class="line">		b := <span class="built_in">new</span>(pb.BookInfoResponse)</span><br><span class="line">		b.BookId = req.BookId</span><br><span class="line">		b.BookName = <span class="string">&quot;人人都是产品经理&quot;</span></span><br><span class="line">		<span class="keyword">return</span> b, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Services-服务层"><a href="#Services-服务层" class="headerlink" title="Services 服务层"></a>Services 服务层</h4><p>实现所有业务逻辑的地方，将多个端点沾合在一起，Go Kit中，服务通常被定义为interface接口，这些接口包含需要被实现的业务(业务逻辑应该不了解端点或特别是传输域概念：您的服务不应该知道有关HTTP头或gRPC错误代码的任何信息)</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 服务接口</span></span><br><span class="line"><span class="keyword">type</span> StringService <span class="keyword">interface</span> &#123;</span><br><span class="line">	Uppercase(<span class="type">string</span>) (<span class="type">string</span>, <span class="type">error</span>)</span><br><span class="line">	Count(<span class="type">string</span>) <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接口实现</span></span><br><span class="line"><span class="keyword">type</span> stringService <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(stringService)</span></span> Uppercase(s <span class="type">string</span>) (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span> s == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, ErrEmpty</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> strings.ToUpper(s), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(stringService)</span></span> Count(s <span class="type">string</span>) <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">len</span>(s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Middlewares-中间件"><a href="#Middlewares-中间件" class="headerlink" title="Middlewares 中间件"></a>Middlewares 中间件</h4><p>目前在学习中了解到了使用etcd作为注册中心，Go Kit提供的负载均衡，使用DelayingLimiter限流器。熔断机制和服务请求追踪还未去接触</p>
+<h6 id="使用Etcd注册中心-amp-负载均衡-amp-限流器的使用"><a href="#使用Etcd注册中心-amp-负载均衡-amp-限流器的使用" class="headerlink" title="使用Etcd注册中心 &amp; 负载均衡 &amp; 限流器的使用"></a>使用Etcd注册中心 &amp; 负载均衡 &amp; 限流器的使用</h6><blockquote>
+<p>关于etcd存储的文章学习：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/softidea/p/6517959.html">https://www.cnblogs.com/softidea/p/6517959.html</a></p>
+</blockquote>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下载最近的etcd存储仓库：https://github.com/etcd-io/etcd/releases &amp; https://www.linuxidc.com/Linux/2015-02/112763.htm</span></span><br><span class="line"><span class="comment">// 设置为环境变量，使用 $ etcd，将它启起来，监听2379端口</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	<span class="comment">// 服务实例地址</span></span><br><span class="line">	instanceAddr = <span class="string">&quot;127.0.0.1:50051&quot;</span></span><br><span class="line">	<span class="comment">// etcd服务地址</span></span><br><span class="line">	etcdAddr     = <span class="string">&quot;127.0.0.1:2379&quot;</span></span><br><span class="line">	<span class="comment">// 服务的信息目录</span></span><br><span class="line">	prefix       = <span class="string">&quot;/services/book/&quot;</span></span><br><span class="line">	<span class="comment">// 服务实例注册的路径</span></span><br><span class="line">	key          = prefix + instanceAddr</span><br><span class="line">	<span class="comment">// 服务实例注册的val</span></span><br><span class="line">	value        = instanceAddr</span><br><span class="line">	ctx          = context.Background()</span><br><span class="line">	<span class="comment">// 服务监听的端口</span></span><br><span class="line">	serviceAddr  = <span class="string">&quot;:50051&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// etcd的连接参数</span></span><br><span class="line">	options := etcdv3.ClientOptions&#123;</span><br><span class="line">		DialTimeout: time.Second * <span class="number">3</span>,</span><br><span class="line">		DialKeepAlive: time.Second * <span class="number">3</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 创建etcd连接</span></span><br><span class="line">	client, err := etcdv3.NewClient(ctx, []<span class="type">string</span>&#123;etcdAddr&#125;, options)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalln(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建注册器</span></span><br><span class="line">	registrar := etcdv3.NewRegistrar(client, etcdv3.Service&#123;</span><br><span class="line">		Key: key,</span><br><span class="line">		Value: value,</span><br><span class="line">	&#125;, log.NewNopLogger())</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 注册器启动注册</span></span><br><span class="line">	registrar.Register()</span><br><span class="line"></span><br><span class="line">	server := <span class="built_in">new</span>(BookService)</span><br><span class="line"></span><br><span class="line">	bookListEndpoint := makeBookListEndpoint()</span><br><span class="line">	<span class="comment">// 创建限流器 1r/s</span></span><br><span class="line">	bookListLimiter := rate.NewLimiter(rate.Every(time.Second * <span class="number">1</span>), <span class="number">1</span>)</span><br><span class="line">	<span class="comment">// 通过DelayingLimiter中间件，在bookListEndpoint的外层再包裹一层限流的endpoint</span></span><br><span class="line">	bookListEndpoint = ratelimit.NewDelayingLimiter(bookListLimiter)(bookListEndpoint)</span><br><span class="line">	<span class="comment">// 创建handler</span></span><br><span class="line">	bookListHandler := gRPCtransport.NewServer(</span><br><span class="line">		bookListEndpoint,</span><br><span class="line">		decodeReq,</span><br><span class="line">		encodeRes,</span><br><span class="line">	)</span><br><span class="line">	<span class="comment">// go-kik 处理逻辑</span></span><br><span class="line">	server.bookListHandler = bookListHandler</span><br><span class="line"></span><br><span class="line">	bookInfoEndpoint := makeBookInfoEndpoint()</span><br><span class="line">	bookInfoLimiter := rate.NewLimiter(rate.Every(time.Second * <span class="number">1</span>), <span class="number">1</span>)</span><br><span class="line">	bookInfoEndpoint = ratelimit.NewDelayingLimiter(bookInfoLimiter)(bookInfoEndpoint)</span><br><span class="line">	bookInfoHandler := gRPCtransport.NewServer(</span><br><span class="line">		bookInfoEndpoint,</span><br><span class="line">		decodeReq,</span><br><span class="line">		encodeRes,</span><br><span class="line">	)</span><br><span class="line">	server.bookInfoHandler = bookInfoHandler</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 启动gRPC服务</span></span><br><span class="line">	listen, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, serviceAddr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalf(<span class="string">&quot;failed to listen: \n%v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	gRPCserver := grpc.NewServer(grpc.UnaryInterceptor(gRPCtransport.Interceptor))</span><br><span class="line">	pb.RegisterBookServiceServer(gRPCserver, server)</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;Listen port on &quot;</span>, serviceAddr)</span><br><span class="line">	gRPCserver.Serve(listen)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试负载均衡，只需在新建个server_1.go文件，将服务端代码复制进去，修改监听端口(50052),客服端进行轮询</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/go-kit/kit/endpoint&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/go-kit/kit/log&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/go-kit/kit/sd&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/go-kit/kit/sd/etcdv3&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/go-kit/kit/sd/lb&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/grpclog&quot;</span></span><br><span class="line">	<span class="string">&quot;io&quot;</span></span><br><span class="line">	pb <span class="string">&quot;microservice-demo/gRPC/book/proto&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	addr = <span class="string">&quot;127.0.0.1:50051&quot;</span></span><br><span class="line">	<span class="comment">// etcd服务地址 注册中心地址</span></span><br><span class="line">	etcdAddr = <span class="string">&quot;127.0.0.1:2379&quot;</span></span><br><span class="line">	<span class="comment">// 监听的服务前缀</span></span><br><span class="line">	prefix   = <span class="string">&quot;/services/book/&quot;</span></span><br><span class="line">	ctx      = context.Background()</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	options := etcdv3.ClientOptions&#123;</span><br><span class="line">		DialTimeout: time.Second * <span class="number">3</span>,</span><br><span class="line">		DialKeepAlive: time.Second * <span class="number">3</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 连接注册中心</span></span><br><span class="line">	client, err := etcdv3.NewClient(ctx, []<span class="type">string</span>&#123;etcdAddr&#125;, options)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalln(<span class="string">&quot;client error: &quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	logger := log.NewNopLogger()</span><br><span class="line">	<span class="comment">// 实例管理器</span></span><br><span class="line">	<span class="comment">// 监听etcd中prefix的目录变化更新缓存的实例数据</span></span><br><span class="line">	instancer, err := etcdv3.NewInstancer(client, prefix, logger)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalln(<span class="string">&quot;instancer error: &quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// endpoint管理器</span></span><br><span class="line">	<span class="comment">// 根据Factory和监听得到实例创建endpoint并订阅实例管理器的变化动态更新Factory创建的endpoint</span></span><br><span class="line">	endpointer := sd.NewEndpointer(instancer, reqFactory, logger)</span><br><span class="line">	<span class="comment">// 负载均衡器</span></span><br><span class="line">	balancer := lb.NewRoundRobin(endpointer)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 1.可以通过负载均衡器直接获取请求的endpoint，发起请求</span></span><br><span class="line">	<span class="comment">// 2.也可以通过retry定义尝试次数进行请求</span></span><br><span class="line">	reqEndpoint := lb.Retry(<span class="number">3</span>, time.Second * <span class="number">3</span>, balancer)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 通过endpoint发起请求</span></span><br><span class="line">	<span class="keyword">var</span> req <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">	<span class="comment">// 轮询</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">8</span>; i++ &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求服务: &quot;</span>, addr, <span class="string">&quot;当前时间: &quot;</span>, time.Now().Format(<span class="string">&quot;2006-01-02 15:04:05.99&quot;</span>))</span><br><span class="line">		<span class="keyword">if</span> _, err := reqEndpoint(ctx, req); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			grpclog.Errorln(<span class="string">&quot;reqEndpoint error: &quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据实例地址 创建对应请求的endpoint</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reqFactory</span><span class="params">(instanceAddr <span class="type">string</span>)</span></span> (endpoint.Endpoint, io.Closer, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, request <span class="keyword">interface</span>&#123;&#125;)</span></span> (response <span class="keyword">interface</span>&#123;&#125;, err <span class="type">error</span>) &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求服务：&quot;</span>, instanceAddr)</span><br><span class="line">		conn, err := grpc.Dial(instanceAddr, grpc.WithInsecure())</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			grpclog.Errorln(<span class="string">&quot;connect error: &quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">defer</span> conn.Close()</span><br><span class="line">		bookClient := pb.NewBookServiceClient(conn)</span><br><span class="line">		bookInfo, _ := bookClient.GetBookInfo(context.Background(), &amp;pb.BookInfoRequest&#123; BookId: <span class="number">1</span> &#125;)</span><br><span class="line">		fmt.Println(<span class="string">&quot;书籍详情&quot;</span>)</span><br><span class="line">		fmt.Println(<span class="string">&quot;bookId: 1&quot;</span>, <span class="string">&quot; =&gt; &quot;</span>, <span class="string">&quot;bookName: &quot;</span>, bookInfo.BookName)</span><br><span class="line"></span><br><span class="line">		bookList, _ := bookClient.GetBookList(context.Background(), &amp;pb.BookListRequest&#123; Page: <span class="number">1</span>, Limit: <span class="number">10</span> &#125;)</span><br><span class="line">		fmt.Println(<span class="string">&quot;书籍列表&quot;</span>)</span><br><span class="line">		<span class="keyword">for</span> _, item := <span class="keyword">range</span> bookList.BookList &#123;</span><br><span class="line">			fmt.Println(<span class="string">&quot;bookId: &quot;</span>, item.BookId, <span class="string">&quot; =&gt; &quot;</span>, <span class="string">&quot;bookName: &quot;</span>, item.BookName)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">nil</span></span><br><span class="line">	&#125;, <span class="literal">nil</span>, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="//static/music/彩月_Saigetsu_Pt2_.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="//static/music/Shirfine-Tears_of_Cherry_Blossoms.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="true"
+        data-ae="true"
+        data-ci="4959cd13b13204273a6a"
+        data-cs="5b8c69518a593901836f49f6354413a61bddecab"
+        data-r="gutrse3321.github.io"
+        data-o="gutrse3321"
+        data-a="gutrse3321"
+        data-d="true"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFGo-Kit"><span class="toc-number">1.</span> <span class="toc-text">什么是Go Kit</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Transports-%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="toc-number">1.1.</span> <span class="toc-text">Transports 传输层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Endpoints-%E7%AB%AF%E7%82%B9%E5%B1%82"><span class="toc-number">1.2.</span> <span class="toc-text">Endpoints 端点层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Services-%E6%9C%8D%E5%8A%A1%E5%B1%82"><span class="toc-number">1.3.</span> <span class="toc-text">Services 服务层</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Middlewares-%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="toc-number">1.4.</span> <span class="toc-text">Middlewares 中间件</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8Etcd%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83-amp-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1-amp-%E9%99%90%E6%B5%81%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.4.0.1.</span> <span class="toc-text">使用Etcd注册中心 &amp; 负载均衡 &amp; 限流器的使用</span></a></li></ol></li></ol></li></ol></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

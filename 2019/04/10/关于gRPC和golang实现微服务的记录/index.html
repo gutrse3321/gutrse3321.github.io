@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="Chinese" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>关于gRPC和golang实现微服务的记录(一) - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Tomonori,"> 
+    <meta name="description" content="友则的分享,
+RPC(Remote Procedure Call)是远程过程调用，比如说现在有两台服务器A, B，一个在A服务器上的应用想要调用B服务器上的应用提供的某个，由于不在两个方法不在一个内存空间，不能,"> 
+    <meta name="author" content="Tomonori"> 
+    <link rel="alternative" href="atom.xml" title="Tomonori&#39;s | 友則" type="application/atom+xml"> 
+    <link rel="icon" href="/static/favicon.ico"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    <meta name="twitter:image:src" content="https://bangdream.moe/img/ident.png"/>
+    <meta name="twitter:creator" content="@HexZ5"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="关于gRPC和golang实现微服务的记录(一) - Tomonori&#39;s | 友則"/>
+    <meta name="twitter:description" content="友则的分享,
+RPC(Remote Procedure Call)是远程过程调用，比如说现在有两台服务器A, B，一个在A服务器上的应用想要调用B服务器上的应用提供的某个，由于不在两个方法不在一个内存空间，不能,"/>
+    <meta property="og:image" content="https://bangdream.moe/img/ident.png"/>
+    <meta property="og:image:alt" content="友则的分享,
+RPC(Remote Procedure Call)是远程过程调用，比如说现在有两台服务器A, B，一个在A服务器上的应用想要调用B服务器上的应用提供的某个，由于不在两个方法不在一个内存空间，不能,"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content="Tomonori&#39;s | 友則"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="关于gRPC和golang实现微服务的记录(一) - Tomonori&#39;s | 友則"/>
+    <meta property="og:description" content="友则的分享,
+RPC(Remote Procedure Call)是远程过程调用，比如说现在有两台服务器A, B，一个在A服务器上的应用想要调用B服务器上的应用提供的某个，由于不在两个方法不在一个内存空间，不能,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">关于gRPC和golang实现微服务的记录(一)</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">关于gRPC和golang实现微服务的记录(一)</h1>
+        <div class="stuff">
+            <span>四月 10, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/gRPC/" rel="tag">gRPC</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <blockquote>
+<p>RPC(Remote Procedure Call)是远程过程调用，比如说现在有两台服务器A, B，一个在A服务器上的应用想要调用B服务器上的应用提供的某个，由于不在两个方法不在一个内存空间，不能直接调用，需要通过网络表达调用的语义和传达调用的数据。常存在于分布式系统中。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>探讨tcp/http和RPC的区别的话，这里就不重复探讨了，戳：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/959030de7f1c">https://www.jianshu.com/p/959030de7f1c</a></p>
+</blockquote>
+<h2 id="gRPC是什么"><a href="#gRPC是什么" class="headerlink" title="gRPC是什么"></a>gRPC是什么</h2><p>gRPC是谷歌开源的一个 RPC 框架，面向移动和 HTTP/2 设计。</p>
+<p>服务端负责实现定义好的接口并处理客户端的请求，客户端根据接口描述直接调用需要的服务。客户端和服务端可以分别使用gPRC支持的不同语言实现。</p>
+<p>ProtoBuf 具有强大的IDL（interface description language，接口描述语言）和相关工具集（主要是protoc）。用户写好.proto描述文件后，protoc可以将其编译成众多语言的接口代码。</p>
+<blockquote>
+<p>有了 gRPC， 我们可以一次性的在一个 .proto 文件中定义服务并使用任何支持它的语言去实现客户端和服务器，反过来，它们可以在各种环境中，从Google的服务器到你自己的平板电脑—— gRPC 帮你解决了不同语言及环境间通信的复杂性.使用 protocol buffers 还能获得其他好处，包括高效的序列号，简单的 IDL 以及容易进行接口更新。</p>
+</blockquote>
+<h2 id="Protobuf是什么"><a href="#Protobuf是什么" class="headerlink" title="Protobuf是什么"></a>Protobuf是什么</h2><p>Protobuf是一种平台无关、语言无关、可扩展且轻便高效的序列化数据结构的协议，可以用于网络通信和数据存储。</p>
+<h3 id="使用和使用前"><a href="#使用和使用前" class="headerlink" title="使用和使用前"></a>使用和使用前</h3><p><a target="_blank" rel="noopener" href="https://github.com/protocolbuffers/protobuf/releases">https://github.com/protocolbuffers/protobuf/releases</a></p>
+<p>将protoc下载下来，设置环境变量，后面将只会展示编译生成的golang代码，protobuf支持其他多种语言</p>
+<h2 id="golang-工具"><a href="#golang-工具" class="headerlink" title="golang 工具"></a>golang 工具</h2><p>拉取 golang的 grpc包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># </span><span class="language-bash">在大陆的话，可以从https://github.com/grpc/grpc-go，将代码克隆下来放到你的gopath目录下src创建对应的文件夹存入</span></span><br><span class="line">go get google.golang.org/grpc</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><blockquote>
+<p>学习推荐： <a target="_blank" rel="noopener" href="https://blog.csdn.net/lihao19910921/article/details/80166399">https://blog.csdn.net/lihao19910921/article/details/80166399</a></p>
+</blockquote>
+<p>初始代码结构</p>
+<ul>
+<li>demo<ul>
+<li>hello<ul>
+<li>client<ul>
+<li>main.go</li>
+</ul>
+</li>
+<li>server<ul>
+<li>main.go</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>proto<ul>
+<li>hello.proto</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>编写proto协议文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// demo/proto/hello.proto</span><br><span class="line">// 指定protobuf的版本</span><br><span class="line">syntax = &quot;proto3&quot;</span><br><span class="line"></span><br><span class="line">// 指定包名</span><br><span class="line">package hello;</span><br><span class="line"></span><br><span class="line">// 定义服务</span><br><span class="line">service HelloService &#123;</span><br><span class="line">  // 定义rpc方法 request response</span><br><span class="line">  rpc SayHello(HelloRequest) returns (HelloResponse) &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 请求结构</span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">  string name = 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 响应结构</span><br><span class="line">message HelloResponse &#123;</span><br><span class="line">  string message = 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用protoc将.proto文件编译成golang代码，包含服务端接口HelloServer描述，客户端接口及实现HelloClient，及HelloRequest、HelloResponse结构体</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># </span><span class="language-bash">demo/proto/hello.proto</span></span><br><span class="line"><span class="meta"># </span><span class="language-bash">使用grpc框架</span></span><br><span class="line">protoc -I . --go_out=plugins=grpc:. ./hello.proto</span><br></pre></td></tr></table></figure>
+
+<p>新的目录结构如下：</p>
+<ul>
+<li>demo<ul>
+<li>hello<ul>
+<li>client<ul>
+<li>main.go</li>
+</ul>
+</li>
+<li>server<ul>
+<li>main.go</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>proto<ul>
+<li>hello.proto</li>
+<li>hello.pb.go</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="服务端和客户端实现"><a href="#服务端和客户端实现" class="headerlink" title="服务端和客户端实现"></a>服务端和客户端实现</h4><p>服务端</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// demo/hello/server/main.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/grpclog&quot;</span></span><br><span class="line">	pb <span class="string">&quot;microservice-demo/gRPC/demo/proto&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// gRPC服务地址</span></span><br><span class="line">	addr = <span class="string">&quot;127.0.0.1:3000&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// helloService 实现约定的接口</span></span><br><span class="line"><span class="keyword">type</span> helloService <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> HelloService = helloService&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h helloService)</span></span> SayHello(_ context.Context, req *pb.HelloRequest) (*pb.HelloResponse, <span class="type">error</span>) &#123;</span><br><span class="line">	res := <span class="built_in">new</span>(pb.HelloResponse)</span><br><span class="line">	res.Message = <span class="string">&quot;Hello &quot;</span> + req.Name + <span class="string">&quot;.&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> res, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	listen, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, addr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalf(<span class="string">&quot;failed to listen: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 实例化gRPC server</span></span><br><span class="line">	s := grpc.NewServer()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 注册hello服务</span></span><br><span class="line">	pb.RegisterHelloServer(s, HelloService)</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;Listen on &quot;</span> + addr)</span><br><span class="line"></span><br><span class="line">	s.Serve(listen)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/grpclog&quot;</span></span><br><span class="line">	pb <span class="string">&quot;microservice-demo/gRPC/demo/proto&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	<span class="comment">// gRPC服务端服务地址</span></span><br><span class="line">	addr = <span class="string">&quot;127.0.0.1:3000&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 连接</span></span><br><span class="line">	conn, err := grpc.Dial(addr, grpc.WithInsecure())</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalln(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化客服端</span></span><br><span class="line">	c := pb.NewHelloClient(conn)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 调用服务方法</span></span><br><span class="line">	reqBody := <span class="built_in">new</span>(pb.HelloRequest)</span><br><span class="line">	reqBody.Name = <span class="string">&quot;tomonori&quot;</span></span><br><span class="line">	<span class="comment">// 返回的是HelloResponse 响应结构体</span></span><br><span class="line">	r, err := c.SayHello(context.Background(), reqBody)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		grpclog.Fatalln(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 输出响应信息</span></span><br><span class="line">	fmt.Println(r.Message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终结果</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在服务端实现的接口方法</span></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h helloService)</span></span> SayHello(_ context.Context, req *pb.HelloRequest) (*pb.HelloResponse, <span class="type">error</span>) &#123;</span><br><span class="line">	res := <span class="built_in">new</span>(pb.HelloResponse)</span><br><span class="line">	res.Message = <span class="string">&quot;Hello &quot;</span> + req.Name + <span class="string">&quot;.&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> res, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">reqBody := <span class="built_in">new</span>(pb.HelloRequest)</span><br><span class="line">reqBody.Name = <span class="string">&quot;tomonori&quot;</span></span><br><span class="line"><span class="comment">// 返回的是HelloResponse 响应结构体</span></span><br><span class="line">r, err := c.SayHello(context.Background(), reqBody)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">  grpclog.Fatalln(err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出响应信息</span></span><br><span class="line">fmt.Println(r.Message)</span><br><span class="line"><span class="comment">// Hello tomonori</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h3 id="阅读资料"><a href="#阅读资料" class="headerlink" title="阅读资料"></a>阅读资料</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lihao19910921/article/details/80166399">https://blog.csdn.net/lihao19910921/article/details/80166399</a><br><a target="_blank" rel="noopener" href="http://doc.oschina.net/grpc?t=60133">http://doc.oschina.net/grpc?t=60133</a></p>
+</blockquote>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="//static/music/彩月_Saigetsu_Pt2_.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="//static/music/Shirfine-Tears_of_Cherry_Blossoms.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="true"
+        data-ae="true"
+        data-ci="4959cd13b13204273a6a"
+        data-cs="5b8c69518a593901836f49f6354413a61bddecab"
+        data-r="gutrse3321.github.io"
+        data-o="gutrse3321"
+        data-a="gutrse3321"
+        data-d="true"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#gRPC%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.</span> <span class="toc-text">gRPC是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Protobuf%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.</span> <span class="toc-text">Protobuf是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%92%8C%E4%BD%BF%E7%94%A8%E5%89%8D"><span class="toc-number">2.1.</span> <span class="toc-text">使用和使用前</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#golang-%E5%B7%A5%E5%85%B7"><span class="toc-number">3.</span> <span class="toc-text">golang 工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%92%8C%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.0.1.</span> <span class="toc-text">服务端和客户端实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%85%E8%AF%BB%E8%B5%84%E6%96%99"><span class="toc-number">4.1.</span> <span class="toc-text">阅读资料</span></a></li></ol></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

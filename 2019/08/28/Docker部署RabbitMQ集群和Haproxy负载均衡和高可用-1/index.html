@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="Chinese" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Docker部署RabbitMQ集群和Haproxy负载均衡和高可用(1) - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Tomonori,"> 
+    <meta name="description" content="友则的分享,镜像123docker pull rabbitmq:3-managementdocker pull rabbitmq:3-management
+
+link 连接(仅集群，不代理)node_0
+1do,"> 
+    <meta name="author" content="Tomonori"> 
+    <link rel="alternative" href="atom.xml" title="Tomonori&#39;s | 友則" type="application/atom+xml"> 
+    <link rel="icon" href="/static/favicon.ico"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    <meta name="twitter:image:src" content="https://bangdream.moe/img/ident.png"/>
+    <meta name="twitter:creator" content="@HexZ5"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Docker部署RabbitMQ集群和Haproxy负载均衡和高可用(1) - Tomonori&#39;s | 友則"/>
+    <meta name="twitter:description" content="友则的分享,镜像123docker pull rabbitmq:3-managementdocker pull rabbitmq:3-management
+
+link 连接(仅集群，不代理)node_0
+1do,"/>
+    <meta property="og:image" content="https://bangdream.moe/img/ident.png"/>
+    <meta property="og:image:alt" content="友则的分享,镜像123docker pull rabbitmq:3-managementdocker pull rabbitmq:3-management
+
+link 连接(仅集群，不代理)node_0
+1do,"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content="Tomonori&#39;s | 友則"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="Docker部署RabbitMQ集群和Haproxy负载均衡和高可用(1) - Tomonori&#39;s | 友則"/>
+    <meta property="og:description" content="友则的分享,镜像123docker pull rabbitmq:3-managementdocker pull rabbitmq:3-management
+
+link 连接(仅集群，不代理)node_0
+1do,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Docker部署RabbitMQ集群和Haproxy负载均衡和高可用(1)</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Docker部署RabbitMQ集群和Haproxy负载均衡和高可用(1)</h1>
+        <div class="stuff">
+            <span>八月 28, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Docker/" rel="tag">Docker</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Haproxy/" rel="tag">Haproxy</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/RabbitMQ/" rel="tag">RabbitMQ</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h3 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull rabbitmq:3-management</span><br><span class="line"></span><br><span class="line">docker pull rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<h3 id="link-连接-仅集群，不代理"><a href="#link-连接-仅集群，不代理" class="headerlink" title="link 连接(仅集群，不代理)"></a>link 连接(仅集群，不代理)</h3><p>node_0</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --hostname node_0_rabbit --name node_0_rabbit -e RABBITMQ_DEFAULT_USER=your username -e RABBITMQ_DEFAULT_PASS=yous pword -e RABBITMQ_ERLANG_COOKIE=&#x27;rabbitcookie&#x27; -p 15672:15672 -p 5672:5672 rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<p>node_1</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --hostname node_1_rabbit --name node_1_rabbit --link node_0_rabbit:node_0_rabbit -e RABBITMQ_ERLANG_COOKIE=&#x27;rabbitcookie&#x27; -e RABBITMQ_DEFAULT_USER=your username -e RABBITMQ_DEFAULT_PASS=yous pword -p 15673:15672 -p 5673:5672 rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<p>node_2</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --hostname node_2_rabbit --name node_2_rabbit --link node_0_rabbit:node_0_rabbit --link node_1_rabbit:node_1_rabbit -e RABBITMQ_ERLANG_COOKIE=&#x27;rabbitcookie&#x27; -e RABBITMQ_DEFAULT_USER=your username -e RABBITMQ_DEFAULT_PASS=yous pword -p 15674:15672 -p 5674:5672 rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<h3 id="network-连接"><a href="#network-连接" class="headerlink" title="network 连接"></a>network 连接</h3><p>内网ip一览</p>
+<ul>
+<li>172.100.100.3 - node_0_rabbit</li>
+<li>172.100.100.4 - node_1_rabbit</li>
+<li>172.100.100.5 - node_2_rabbit</li>
+<li>172.100.100.6 - haproxy_0</li>
+<li>172.100.100.7 - haproxy_1</li>
+</ul>
+<p>创建网卡</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --subnet=172.100.100.0/24 rabbit_net</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：docker rabbitmq需要节点设置erlang cookie，节点之间需要一致。服务器则需要拷贝相关.erlang.cookie文件（好像是这个）</p>
+</blockquote>
+<p>node_0</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --hostname node_0_rabbit \</span><br><span class="line">--name node_0_rabbit \</span><br><span class="line">--net=rabbit_net \</span><br><span class="line">--ip=172.100.100.3 \</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=your username \</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=yous pword \</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;rabbitcookie&#x27; \</span><br><span class="line">-p 15672:15672 \</span><br><span class="line">-p 5672:5672 \</span><br><span class="line">rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<p>node_1</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --hostname node_1_rabbit \</span><br><span class="line">--name node_1_rabbit \</span><br><span class="line">--net=rabbit_net \</span><br><span class="line">--ip=172.100.100.4 \</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=your username \</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=yous pword \</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;rabbitcookie&#x27; \</span><br><span class="line">-p 15673:15672 \</span><br><span class="line">-p 5673:5672 \</span><br><span class="line">rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<p>node_2</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --hostname node_2_rabbit \</span><br><span class="line">--name node_2_rabbit \</span><br><span class="line">--net=rabbit_net \</span><br><span class="line">--ip=172.100.100.5 \</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=your username \</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=yous pword \</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;rabbitcookie&#x27; \</span><br><span class="line">-p 15674:15672 \</span><br><span class="line">-p 5674:5672 \</span><br><span class="line">rabbitmq:3-management</span><br></pre></td></tr></table></figure>
+
+<p>haproxy_0</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># </span><span class="language-bash">5670 web监控 http://your ip address:5670/rabbitmq-stats</span></span><br><span class="line"><span class="meta"># </span><span class="language-bash">5671 集群端口</span></span><br><span class="line"><span class="meta"># </span><span class="language-bash">关于配置</span></span><br><span class="line">docker run -d --hostname haproxy_0 \</span><br><span class="line">--name haproxy_0 \</span><br><span class="line">-p 5670-5671:5670-5671 \</span><br><span class="line">-v /home/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg \</span><br><span class="line">--ip=172.100.100.6 \</span><br><span class="line">--net=rabbit_net haproxy</span><br></pre></td></tr></table></figure>
+
+<p>haproxy_1 同理 后面高可用备用</p>
+<p>haproxy.cfg</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">global</span><br><span class="line">  maxconn 5120</span><br><span class="line">  log 127.0.0.1 local0 info        #[err warning info debug]</span><br><span class="line">  chroot /usr/local/sbin           #chroot运行的路径</span><br><span class="line">  daemon                           #以后台形式运行haproxy</span><br><span class="line">  nbproc 20</span><br><span class="line">  pidfile /var/run/haproxy.pid     #haproxy的pid存放路径,启动进程的用户必须有权限访问此文件</span><br><span class="line">defaults</span><br><span class="line">  log global</span><br><span class="line">  mode tcp                         #所处理的类别 (#7层 http;4层tcp  )</span><br><span class="line">  maxconn 2000                     #最大连接数</span><br><span class="line">  option dontlognull               #不记录健康检查的日志信息</span><br><span class="line">  option redispatch                #serverId对应的服务器挂掉后,强制定向到其他健康的服务器</span><br><span class="line">  option tcplog</span><br><span class="line"><span class="meta">  #</span><span class="language-bash">stats refresh 30                <span class="comment">#统计页面刷新间隔</span></span></span><br><span class="line">  retries 3                        #3次连接失败就认为服务不可用，也可以通过后面设置</span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance roundrobin              <span class="comment">#默认的负载均衡的方式,轮询方式</span></span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance <span class="built_in">source</span>                  <span class="comment">#默认的负载均衡的方式,类似nginx的ip_hash</span></span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance leastconn               <span class="comment">#默认的负载均衡的方式,最小连接</span></span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash"><span class="built_in">timeout</span> connect 5000            <span class="comment">#连接超时</span></span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash"><span class="built_in">timeout</span> client 50000            <span class="comment">#客户端超时</span></span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash"><span class="built_in">timeout</span> server 50000            <span class="comment">#服务器超时</span></span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash"><span class="built_in">timeout</span> check 2000              <span class="comment">#心跳检测超时</span></span></span><br><span class="line">  contimeout 5s</span><br><span class="line">  clitimeout 60s</span><br><span class="line">  srvtimeout 15s</span><br><span class="line"><span class="meta">#</span><span class="language-bash">配置haproxy web监控</span></span><br><span class="line">listen stats</span><br><span class="line">  bind 0.0.0.0:5670</span><br><span class="line">  mode http</span><br><span class="line">  option httplog</span><br><span class="line">  stats enable</span><br><span class="line">  stats uri /rabbitmq-stats        #统计页面url</span><br><span class="line">  stats refresh 5s</span><br><span class="line">listen rabbitmq_cluster</span><br><span class="line">  bind 0.0.0.0:5671</span><br><span class="line">  option tcplog</span><br><span class="line">  mode tcp</span><br><span class="line"><span class="meta">  #</span><span class="language-bash"><span class="built_in">timeout</span> client  3h</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash"><span class="built_in">timeout</span> server  3h</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">option          clitcpka</span></span><br><span class="line">  balance roundrobin               #负载均衡算法（#banlance roundrobin 轮询，balance source 保存session值，支持static-rr，leastconn，first，uri等参数）</span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance url_param userid</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance url_param session_id check_post 64</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance hdr(User-Agent)</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance hdr(host)</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance hdr(Host) use_domain_only</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance rdp-cookie</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance leastconn</span></span><br><span class="line"><span class="meta">  #</span><span class="language-bash">balance <span class="built_in">source</span> //ip</span></span><br><span class="line">  server node_0_rabbit 172.100.100.3:5672 check inter 5s rise 2 fall 2   #check inter 2000 是检测心跳频率，rise 2是2次正确认为服务器可用，fall 3是3次失败认为服务器不可用</span><br><span class="line">  server node_1_rabbit 172.100.100.4:5672 check inter 5s rise 2 fall 2</span><br><span class="line">  server node_2_rabbit 172.100.100.5:5672 check inter 5s rise 2 fall 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置mq集群"><a href="#设置mq集群" class="headerlink" title="设置mq集群"></a>设置mq集群</h3><p>使用rabbitmqctl</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># </span><span class="language-bash">node_0</span></span><br><span class="line">docker exec -it node_0_rabbit bash</span><br><span class="line">rabbitmqctl stop_app</span><br><span class="line">rabbitmqctl reset</span><br><span class="line">rabbitmqctl start_app</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta"># </span><span class="language-bash">node_1 node_2 (join_cluster --ram 以内存的方式加入，默认disc)</span></span><br><span class="line">docker exec -it node_1（2）_rabbit bash</span><br><span class="line">rabbitmqctl stop_app</span><br><span class="line">rabbitmqctl reset</span><br><span class="line">rabbitmqctl join_cluster rabbit@node_0_rabbit</span><br><span class="line">rabbitmqctl start_app</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启集群镜像模式"><a href="#开启集群镜像模式" class="headerlink" title="开启集群镜像模式"></a>开启集群镜像模式</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># </span><span class="language-bash">任何rabbitmq节点</span></span><br><span class="line">rabbitmqctl set_policy ha-all &quot;^&quot; &#x27;&#123;&quot;ha-mode&quot;:&quot;all&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h2><blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.runoob.com/docker/docker-command-manual.html">docker 命令大全</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/clustering.html">Clustering Guide - 官方文档</a> //英语，关键翻译就可以了</li>
+<li><a target="_blank" rel="noopener" href="https://hub.docker.com/_/haproxy?tab=description">haproxy docker hub</a> //看描述，如何执行</li>
+</ul>
+</blockquote>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="/static/music/ロリィタノイロォゼ-あなたが世界の縁にいるとき.mp3">
+            </audio>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="true"
+        data-ae="true"
+        data-ci="4959cd13b13204273a6a"
+        data-cs="5b8c69518a593901836f49f6354413a61bddecab"
+        data-r="gutrse3321.github.io"
+        data-o="gutrse3321"
+        data-a="gutrse3321"
+        data-d="true"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%9C%E5%83%8F"><span class="toc-number">1.</span> <span class="toc-text">镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#link-%E8%BF%9E%E6%8E%A5-%E4%BB%85%E9%9B%86%E7%BE%A4%EF%BC%8C%E4%B8%8D%E4%BB%A3%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">link 连接(仅集群，不代理)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#network-%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.</span> <span class="toc-text">network 连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AEmq%E9%9B%86%E7%BE%A4"><span class="toc-number">4.</span> <span class="toc-text">设置mq集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%90%AF%E9%9B%86%E7%BE%A4%E9%95%9C%E5%83%8F%E6%A8%A1%E5%BC%8F"><span class="toc-number">5.</span> <span class="toc-text">开启集群镜像模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="toc-number"></span> <span class="toc-text">相关链接</span></a>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>

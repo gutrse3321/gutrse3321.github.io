@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="Chinese" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Java 微信登陆逻辑记录 - Tomonori&#39;s | 友則</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Tomonori,"> 
+    <meta name="description" content="友则的分享,Java 微信登陆code、encryptedData、iv：需要前端通过wx.login获取code，wx.getUserInfo获取encryptedData用户数据加密、iv偏移向量
+1234,"> 
+    <meta name="author" content="Tomonori"> 
+    <link rel="alternative" href="atom.xml" title="Tomonori&#39;s | 友則" type="application/atom+xml"> 
+    <link rel="icon" href="/static/favicon.ico"> 
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+
+    <meta name="twitter:image:src" content="https://bangdream.moe/img/ident.png"/>
+    <meta name="twitter:creator" content="@HexZ5"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Java 微信登陆逻辑记录 - Tomonori&#39;s | 友則"/>
+    <meta name="twitter:description" content="友则的分享,Java 微信登陆code、encryptedData、iv：需要前端通过wx.login获取code，wx.getUserInfo获取encryptedData用户数据加密、iv偏移向量
+1234,"/>
+    <meta property="og:image" content="https://bangdream.moe/img/ident.png"/>
+    <meta property="og:image:alt" content="友则的分享,Java 微信登陆code、encryptedData、iv：需要前端通过wx.login获取code，wx.getUserInfo获取encryptedData用户数据加密、iv偏移向量
+1234,"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content="Tomonori&#39;s | 友則"/>
+    <meta property="og:type" content="object"/>
+    <meta property="og:title" content="Java 微信登陆逻辑记录 - Tomonori&#39;s | 友則"/>
+    <meta property="og:description" content="友则的分享,Java 微信登陆code、encryptedData、iv：需要前端通过wx.login获取code，wx.getUserInfo获取encryptedData用户数据加密、iv偏移向量
+1234,"/>
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">Tomonori&#39;s | 友則</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="https://tomonori.cc"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Java 微信登陆逻辑记录</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Java 微信登陆逻辑记录</h1>
+        <div class="stuff">
+            <span>六月 24, 2019</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/%E5%BE%AE%E4%BF%A1/" rel="tag">微信</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h3 id="Java-微信登陆"><a href="#Java-微信登陆" class="headerlink" title="Java 微信登陆"></a>Java 微信登陆</h3><p>code、encryptedData、iv：<br>需要前端通过wx.login获取code，wx.getUserInfo获取encryptedData用户数据加密、iv偏移向量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /game-catch/ ... /com.xxxx.appserver/WeixinController.java</span></span><br><span class="line"><span class="keyword">public</span> UserDto <span class="title function_">login</span><span class="params">(String code, String encryptedData, String iv)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// code、encryptedData、iv</span></span><br><span class="line">    <span class="comment">// 需要前端通过wx.login获取code，wx.getUserInfo获取encryptedData用户数据加密、iv偏移向量</span></span><br><span class="line">    <span class="type">WxSessionModel</span> <span class="variable">wxSession</span> <span class="operator">=</span> wxClientApi.getSessionKey(WxSessionModel.class, code);</span><br><span class="line">    <span class="type">WxUserModel</span> <span class="variable">wxUser</span> <span class="operator">=</span> wxClientApi.getUserInfo(WxUserModel.class, wxSession.getSession_key(), encryptedData, iv);</span><br><span class="line">    <span class="type">UserDto</span> <span class="variable">user</span> <span class="operator">=</span> proxy.queryUserByUid(wxUser.getOpenId());</span><br><span class="line">    <span class="keyword">if</span> (user == <span class="literal">null</span>) &#123;</span><br><span class="line">        user = registUser(wxUser);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        user.setName(wxUser.getNickName());</span><br><span class="line">        user.setAvatarUrl(wxUser.getAvatarUrl());</span><br><span class="line">        user.setSex(wxUser.getGender());</span><br><span class="line">        reactor.notify(<span class="string">&quot;updateUserHandler&quot;</span>, Event.wrap(user));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//缓存用户</span></span><br><span class="line">    proxy.saveUserByUid(user);</span><br><span class="line">    log.info(<span class="string">&quot;用户登录:&quot;</span> + user);</span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="getSessionKey-Class-resultClass-String-code"><a href="#getSessionKey-Class-resultClass-String-code" class="headerlink" title="getSessionKey(Class resultClass, String code)"></a>getSessionKey(Class<T> resultClass, String code)</h5><p>请求地址：api.weixin.qq.com/sns/jscode2session<br><br>根据前端传的code请求微信接口获取session<br><br>checkCode(HttpResponse response),对请求微信接口的结果做异常处理，有errcode!=0和，httpcode!=200的时候抛异常<br></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; T <span class="title function_">getSessionKey</span><span class="params">(Class&lt;T&gt; resultClass, String code)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// makeHttpsUrl方法根据传入的字符串去application-local.yml获取配置信息,如下yml配置</span></span><br><span class="line">    <span class="type">HttpRequest</span> <span class="variable">request</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpRequest</span>(makeHttpsUrl(<span class="string">&quot;sessionPath&quot;</span>));</span><br><span class="line">    request.addParameter(<span class="string">&quot;appid&quot;</span>, getProperties(<span class="string">&quot;AppID&quot;</span>));</span><br><span class="line">    request.addParameter(<span class="string">&quot;secret&quot;</span>, getProperties(<span class="string">&quot;AppSecret&quot;</span>));</span><br><span class="line">    request.addParameter(<span class="string">&quot;js_code&quot;</span>, code);</span><br><span class="line">    request.addParameter(<span class="string">&quot;grant_type&quot;</span>, <span class="string">&quot;authorization_code&quot;</span>);</span><br><span class="line">    <span class="type">HttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> clientManager.execute(request);</span><br><span class="line">    checkCode(response);</span><br><span class="line">    <span class="keyword">return</span> JsonUtility.toObject(response.getContentString(), resultClass);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终json反序列化，返回这样的类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WxSessionModel</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer errcode;         <span class="comment">// 返回码</span></span><br><span class="line">    <span class="keyword">private</span> String errmsg;           <span class="comment">// 返回错误信息</span></span><br><span class="line">    <span class="keyword">private</span> String openid;          <span class="comment">// 用户唯一标识</span></span><br><span class="line">    <span class="keyword">private</span> String session_key;     <span class="comment">// 会话密钥</span></span><br><span class="line">    <span class="keyword">private</span> String unionid;      <span class="comment">// 用户在开放平台的唯一标识符</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>application-local.yml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">http:</span></span><br><span class="line">   <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">   <span class="attr">time-out-socket:</span> <span class="number">5000</span></span><br><span class="line">   <span class="attr">time-out-connection:</span> <span class="number">2000</span></span><br><span class="line">   <span class="attr">time-out-request-connection:</span> <span class="number">5000</span></span><br><span class="line">   <span class="attr">retry-number:</span> <span class="number">2</span></span><br><span class="line">   <span class="attr">max-total:</span> <span class="number">500</span></span><br><span class="line">   <span class="attr">client-properties:</span></span><br><span class="line">     <span class="attr">weixin:</span></span><br><span class="line">       <span class="attr">host:</span> <span class="string">api.weixin.qq.com</span></span><br><span class="line">       <span class="attr">max-pre-route:</span> <span class="number">100</span></span><br><span class="line">       <span class="attr">url-map:</span></span><br><span class="line">         <span class="attr">sessionPath:</span> <span class="string">/sns/jscode2session</span></span><br><span class="line">         <span class="attr">TokenPath:</span> <span class="string">/cgi-bin/token</span></span><br><span class="line">         <span class="attr">ScoreStoragePath:</span> <span class="string">/wxa/set_user_storage</span></span><br><span class="line">         <span class="attr">AppID:</span> <span class="string">xxxxxxxxxxx</span></span><br><span class="line">         <span class="attr">AppSecret:</span> <span class="string">xxxxxx</span></span><br></pre></td></tr></table></figure>
+<h5 id="getUserInfo-Class-resultClass-String-sessionKey-String-encryptedData-String-iv"><a href="#getUserInfo-Class-resultClass-String-sessionKey-String-encryptedData-String-iv" class="headerlink" title="getUserInfo(Class resultClass, String sessionKey, String encryptedData, String iv)"></a>getUserInfo(Class<T> resultClass, String sessionKey, String encryptedData, String iv)</h5><p>解密前端传入的encryptedData加密用户信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; T <span class="title function_">getUserInfo</span><span class="params">(Class&lt;T&gt; resultClass, String sessionKey, String encryptedData, String iv)</span> &#123;</span><br><span class="line">    <span class="comment">// 被加密的数据</span></span><br><span class="line">    <span class="type">byte</span>[] dataByte = Base64.decode(encryptedData);</span><br><span class="line">    <span class="comment">// 加密秘钥</span></span><br><span class="line">    <span class="type">byte</span>[] keyByte = Base64.decode(sessionKey);</span><br><span class="line">    <span class="comment">// 偏移量</span></span><br><span class="line">    <span class="type">byte</span>[] ivByte = Base64.decode(iv);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 如果密钥不足16位，那么就补足.  这个if 中的内容很重要</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">base</span> <span class="operator">=</span> <span class="number">16</span>;</span><br><span class="line">        <span class="keyword">if</span> (keyByte.length % base != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">groups</span> <span class="operator">=</span> keyByte.length / base + (keyByte.length % base != <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>);</span><br><span class="line">            <span class="type">byte</span>[] temp = <span class="keyword">new</span> <span class="title class_">byte</span>[groups * base];</span><br><span class="line">            Arrays.fill(temp, (<span class="type">byte</span>) <span class="number">0</span>);</span><br><span class="line">            System.arraycopy(keyByte, <span class="number">0</span>, temp, <span class="number">0</span>, keyByte.length);</span><br><span class="line">            keyByte = temp;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 初始化</span></span><br><span class="line">        Security.addProvider(<span class="keyword">new</span> <span class="title class_">BouncyCastleProvider</span>());</span><br><span class="line">        <span class="type">Cipher</span> <span class="variable">cipher</span> <span class="operator">=</span> Cipher.getInstance(<span class="string">&quot;AES/CBC/PKCS7Padding&quot;</span>, <span class="string">&quot;BC&quot;</span>);</span><br><span class="line">        <span class="type">SecretKeySpec</span> <span class="variable">spec</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SecretKeySpec</span>(keyByte, <span class="string">&quot;AES&quot;</span>);</span><br><span class="line">        <span class="type">AlgorithmParameters</span> <span class="variable">parameters</span> <span class="operator">=</span> AlgorithmParameters.getInstance(<span class="string">&quot;AES&quot;</span>);</span><br><span class="line">        parameters.init(<span class="keyword">new</span> <span class="title class_">IvParameterSpec</span>(ivByte));</span><br><span class="line">        cipher.init(Cipher.DECRYPT_MODE, spec, parameters);<span class="comment">// 初始化</span></span><br><span class="line">        <span class="type">byte</span>[] resultByte = cipher.doFinal(dataByte);</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> != resultByte &amp;&amp; resultByte.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(resultByte, <span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> JsonUtility.toObject(result, resultClass);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解密后，返回这样的类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WxUserModel</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String nickName;            <span class="comment">// 用户昵称</span></span><br><span class="line">    <span class="keyword">private</span> String openId;              <span class="comment">// openId</span></span><br><span class="line">    <span class="keyword">private</span> String unionId;             <span class="comment">// unionId</span></span><br><span class="line">    <span class="keyword">private</span> String avatarUrl;           <span class="comment">// 头像地址</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">Integer</span> <span class="variable">gender</span> <span class="operator">=</span> Constant.Gender.Nomal.ordinal();            <span class="comment">// 性别</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 公共枚举取，详情查看Constant</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 性别</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">Gender</span> &#123;</span><br><span class="line">    Nomal,      <span class="comment">//未知</span></span><br><span class="line">    Man,        <span class="comment">//男</span></span><br><span class="line">    Woman       <span class="comment">//女</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>主要是没有做过获取微信用户信息这一块，后面的操作就是业务逻辑，存在我们自己的数据库了，唯一标识就是wx的openId</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title="0" data-url="//static/music/彩月_Saigetsu_Pt2_.mp3"></li>
+                        
+                    
+                        
+                            <li title="1" data-url="//static/music/Shirfine-Tears_of_Cherry_Blossoms.mp3"></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link"
+		data-enable="true"
+        data-ae="true"
+        data-ci="4959cd13b13204273a6a"
+        data-cs="5b8c69518a593901836f49f6354413a61bddecab"
+        data-r="gutrse3321.github.io"
+        data-o="gutrse3321"
+        data-a="gutrse3321"
+        data-d="true"
+    >查看评论</div>
+
+
+    </div>
+    
+        <div class="side">
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-%E5%BE%AE%E4%BF%A1%E7%99%BB%E9%99%86"><span class="toc-number">1.</span> <span class="toc-text">Java 微信登陆</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#getSessionKey-Class-resultClass-String-code"><span class="toc-number">1.0.1.</span> <span class="toc-text">getSessionKey(Class resultClass, String code)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#getUserInfo-Class-resultClass-String-sessionKey-String-encryptedData-String-iv"><span class="toc-number">1.0.2.</span> <span class="toc-text">getUserInfo(Class resultClass, String sessionKey, String encryptedData, String iv)</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.1.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>	
+        </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
