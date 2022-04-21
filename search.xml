@@ -119,6 +119,54 @@
       </tags>
   </entry>
   <entry>
+    <title>Java用 开发规范(1)</title>
+    <url>/2022/04/21/Java%E7%94%A8%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83-1/</url>
+    <content><![CDATA[<blockquote>
+<p>参考编写文章：<a href="https://zhuanlan.zhihu.com/p/413278453">https://zhuanlan.zhihu.com/p/413278453</a></p>
+<p>本篇规范基于阿里巴巴、华为的开发手册，添加了我们团队的开发风格规范，补充了一些细节。感谢前人的经验和付出，让我们可以有机会站在巨人的肩膀上眺望星辰大海。</p>
+</blockquote>
+<p>规范不是为了约束和禁锢大家的创造力，而是为了帮助大家能够在正确的道路上，尽可能的避免踩坑和跑偏。</p>
+<p>规范可以让我们无论单枪匹马还是与众人同行的时候都能得心应手。</p>
+<p>规范可以让我们在面对日益变态的需求和做代码接盘侠的时候，更优雅从容。</p>
+<h3 id="一、编程规范"><a href="#一、编程规范" class="headerlink" title="一、编程规范"></a>一、编程规范</h3><h4 id="1-底线原则"><a href="#1-底线原则" class="headerlink" title="1.底线原则"></a>1.底线原则</h4><ul>
+<li>业务代码编写完成后，至少有且进行三次调用(接口、方法、插件…)，并测试通过</li>
+<li>尽量减少重复代码，若存在排期结束时间将至，可酌情编写，后续可更新</li>
+<li>每个函数体，至少有最基础的执行逻辑注释，可在每行代码都进行注释注明，注释不可冗余，本意为理解代码所表达的意义</li>
+<li>代码的可阅读性，保证代码是容易阅读的，可拆分的进行拆分，不可拆分的可用上述注释协助表达</li>
+</ul>
+<h4 id="2-项目命名规范"><a href="#2-项目命名规范" class="headerlink" title="2.项目命名规范"></a>2.项目命名规范</h4><p>项目工程包文件夹名：<code>aw_prj_alice_server_public_house</code></p>
+<ul>
+<li>aw：知道安物</li>
+<li>prj：project 项目</li>
+<li>alice：架构代号</li>
+<li>server：项目属性，eg：service为提供远程调用接口，server提供web api或者其他的</li>
+<li>public_house：项目名称</li>
+</ul>
+<p>项目工程包名：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.knowniot.alice<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aw-application-publichouse<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>groupId：固定为com.knowniot.代号</li>
+<li>artifactId：aw-除了主服务，都使用alice-项目名称，eg：aw-alice-deviceinfo</li>
+</ul>
+<p>项目文件夹名称为使用下划线<code>_</code>，而包名是横杠<code>-</code>，注意。</p>
+<h4 id="3-注释、FIXME标识"><a href="#3-注释、FIXME标识" class="headerlink" title="3.注释、FIXME标识"></a>3.注释、FIXME标识</h4><ul>
+<li>大部分函数或方法需要头部注释（接口和接口实现是必须的）<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">由文字介绍，作者，参数，反参组成，格式为下列所示</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 这是一个接口、函数、方法的介绍</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> 友则</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ent 实体参数</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> </span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></li>
+<li>关于<code>//FIXME</code> 与 <code>//</code> 或 <code>///</code>，<code>//FIXME</code>在idea作为高亮注释来使用，普通注释可用<code>//</code>或<code>///</code></li>
+<li>禁止<code>/* */</code>进行多行注释，可采用上述<code>//FIXME</code> 与 <code>//</code> 或 <code>///</code>多行表达</li>
+</ul>
+<h4 id="4-方法参数规范"><a href="#4-方法参数规范" class="headerlink" title="4.方法参数规范"></a>4.方法参数规范</h4><p>无论是<code>controller</code>，<code>service</code>，<code>script</code>，<code>handler</code>，<code>mapper</code> 亦或是其他的代码，超出<code>2</code>个参数的话，需要进行换行。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> PageUtility&lt;AccountEventDto&gt; <span class="title function_">visitorLogList</span><span class="params">(Long visitor_id,</span></span><br><span class="line"><span class="params">                                                   Integer pageIndex,</span></span><br><span class="line"><span class="params">                                                   Integer pageSize,</span></span><br><span class="line"><span class="params">                                                   String direction,</span></span><br><span class="line"><span class="params">                                                   String sortName)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="二、项目规范"><a href="#二、项目规范" class="headerlink" title="二、项目规范"></a>二、项目规范</h3><p>统一的application、service 服务类型工程目录结构的基础包结构</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">src</span><br><span class="line">  |--main</span><br><span class="line">        |--com</span><br><span class="line">             |--knowniot</span><br><span class="line">                       |--alice</span><br><span class="line">                              |--server</span><br><span class="line"></span><br><span class="line">这个是基础包，下述简写为 com.knowniot.alice.server</span><br><span class="line"></span><br><span class="line">com.knowniot.alice.server</span><br><span class="line">   |--aop                               切片函数</span><br><span class="line">   |--cache                             缓存操作函数</span><br><span class="line">   |--controller                        web api接口函数</span><br><span class="line">   |--http                              http客户端</span><br><span class="line">   |--mq                                消息队列配置</span><br><span class="line">   |--persist                           交换类、dao</span><br><span class="line">      |--dto</span><br><span class="line">      |--entity</span><br><span class="line">      |--mapper</span><br><span class="line">      |--model</span><br><span class="line">      |--repository</span><br><span class="line">   |--script                            脚本函数操作</span><br><span class="line">   |--service                           接口实现服务类</span><br><span class="line">   |--reactor                           异步池函数</span><br><span class="line">   |--task                              定时任务</span><br><span class="line">   |-- Application.java</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Skill</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>开发规范</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring Reactor使用(1)</title>
     <url>/2019/07/25/Spring-Reactor%E4%BD%BF%E7%94%A8-1/</url>
     <content><![CDATA[<h3 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h3><p>不做说明，仅记录代码及使用</p>
@@ -772,34 +820,6 @@
       </tags>
   </entry>
   <entry>
-    <title>转 - 桜泣Feat.Himawari</title>
-    <url>/2019/05/09/%E8%BD%AC-%E6%A1%9C%E6%B3%A3Feat-Himawari/</url>
-    <content><![CDATA[<p>桜泣Feat.Himawari</p>
-<p>歌：Himawari</p>
-<p>作詞：Himawari</p>
-<p>作曲：Aosaki</p>
-<hr>
-<p>桜は、泣いて何かしないよ。</p>
-<p>あれは、舞っているだけ。</p>
-<p>見ろ、あの美しい姿。</p>
-<p>桜は、泣いて何かしないよ。</p>
-<p>泡のように、</p>
-<p>空に飛んでいて、</p>
-<p>数回廻って、</p>
-<p>そして風に身を任せ。</p>
-<p>あの子は美しい、</p>
-<p>あの子は泣いて何かしない。</p>
-<p>桜は、泣いて何かしないよ。</p>
-]]></content>
-      <categories>
-        <category>夢を</category>
-      </categories>
-      <tags>
-        <tag>歌曲</tag>
-        <tag>日本语</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>转-小众的偏好</title>
     <url>/2019/03/01/%E8%BD%AC-%E5%B0%8F%E4%BC%97%E7%9A%84%E5%81%8F%E5%A5%BD/</url>
     <content><![CDATA[<blockquote>
@@ -825,6 +845,34 @@
       <tags>
         <tag>别人的世界</tag>
         <tag>小众</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>转 - 桜泣Feat.Himawari</title>
+    <url>/2019/05/09/%E8%BD%AC-%E6%A1%9C%E6%B3%A3Feat-Himawari/</url>
+    <content><![CDATA[<p>桜泣Feat.Himawari</p>
+<p>歌：Himawari</p>
+<p>作詞：Himawari</p>
+<p>作曲：Aosaki</p>
+<hr>
+<p>桜は、泣いて何かしないよ。</p>
+<p>あれは、舞っているだけ。</p>
+<p>見ろ、あの美しい姿。</p>
+<p>桜は、泣いて何かしないよ。</p>
+<p>泡のように、</p>
+<p>空に飛んでいて、</p>
+<p>数回廻って、</p>
+<p>そして風に身を任せ。</p>
+<p>あの子は美しい、</p>
+<p>あの子は泣いて何かしない。</p>
+<p>桜は、泣いて何かしないよ。</p>
+]]></content>
+      <categories>
+        <category>夢を</category>
+      </categories>
+      <tags>
+        <tag>歌曲</tag>
+        <tag>日本语</tag>
       </tags>
   </entry>
 </search>
